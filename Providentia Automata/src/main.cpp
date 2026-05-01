@@ -1,18 +1,39 @@
 #include <Arduino.h>
+#include <LiquidCrystal_I2C.h>
+#include "lcd/lcd.h"
+LiquidCrystal_I2C lcd(0x27, 16, 2);
 
-// put function declarations here:
-int myFunction(int, int);
+unsigned long lastMillis = 0;
 
-void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+unsigned long getMillis(unsigned long time)
+{
+    unsigned long currentMillis = millis();
+
+    if (currentMillis - lastMillis >= time)
+    {
+        lastMillis = currentMillis;
+        return lastMillis;
+    }
+
+    return 0;
 }
 
-void loop() {
-  // put your main code here, to run repeatedly:
+void setup()
+{
+    lcd.init();
+    lcd.backlight();
+    Serial.begin(9600);
 }
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+void loop()
+{
+
+    if (getMillis(5000) != 0)
+    {
+        if (Serial.available())
+        {
+            lcd.clear();
+            lcdPrint(lcd);
+        }
+    }
 }
