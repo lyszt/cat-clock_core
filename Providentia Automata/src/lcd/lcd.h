@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 
-void lcdPrint(LiquidCrystal_I2C &lcd);
+void lcdPrint(LiquidCrystal_I2C &lcd, String text);
 
 
 #endif
