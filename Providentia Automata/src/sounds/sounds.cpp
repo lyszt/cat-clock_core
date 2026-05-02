@@ -62,12 +62,28 @@ void tickMelody(int pin)
     startNote(pin);
 }
 
-static const int powerOnMelody[]     = { NOTE_G3, 16, NOTE_B3, 16, NOTE_D4, 16, NOTE_G4, 8  };
-static const int powerOffMelody[]    = { NOTE_G4, 16, NOTE_D4, 16, NOTE_B3, 16, NOTE_G3, -8 };
+static const int powerOnMelody[] = {
+    NOTE_A3, 16,
+    NOTE_A3, 16,
+    NOTE_C5, 16,
+    NOTE_A3, 16,
+    REST,    16,
+    NOTE_G3, 16,
+    NOTE_C5, 16,
+    NOTE_G3, 16,
+};
+static const int powerOffMelody[] = {
+    NOTE_D3, 16,
+    NOTE_E3, 16,
+    NOTE_E3, 16,
+    NOTE_D3, 16,
+    NOTE_C3, 16,
+    NOTE_C3, 16,
+};
 static const int modeSwitchMelody[]  = { NOTE_E3, 16, NOTE_B3, 8 };
 
-void soundPowerOn(int pin)    { playMelody(pin, powerOnMelody,    4, 120); }
-void soundOff(int pin)        { playMelody(pin, powerOffMelody,   4, 120); }
+void soundPowerOn(int pin)    { playMelody(pin, powerOnMelody,    8, 100); }
+void soundOff(int pin)        { playMelody(pin, powerOffMelody,   6, 100); }
 void soundModeSwitch(int pin) { playMelody(pin, modeSwitchMelody, 2, 120); }
 
 // what a cutely named function
