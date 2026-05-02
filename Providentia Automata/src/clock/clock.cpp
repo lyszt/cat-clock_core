@@ -1,4 +1,5 @@
 #include "clock.h"
+#include "../sounds/sounds.h"
 #include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 
@@ -53,12 +54,14 @@ void Clock::toggleMode()
     case CHRONOMETRE:
         this->start_time = millis();
         this->current_time = 0;
+        soundPowerOn(this->buzzerPin);
         break;
 
     case POMODORO:
         this->start_time = millis();
         this->current_time = 0;
         this->pomodoro_cycle = 0;
+        soundModeSwitch(this->buzzerPin);
         break;
 
     default:
@@ -69,6 +72,7 @@ void Clock::toggleMode()
             lcd->noDisplay();
             lcd->noBacklight();
         }
+        soundOff(this->buzzerPin);
         break;
     }
 
@@ -81,9 +85,6 @@ void Clock::toggleMode()
         lcd->clear();
         this->turned_on = true;
     }
-
-    // the divinity of the sacred meow
-    meow();
 
 }
 
@@ -111,6 +112,8 @@ void Clock::cycle()
                 this->start_time = millis();
                 this->current_time = 0;
                 this->pomodoro_cycle = (this->pomodoro_cycle + 1) % 2;
+                // the divinity of the sacred meow
+                meow(this->buzzerPin);
             }
             break;
         }
@@ -121,6 +124,8 @@ void Clock::cycle()
                 this->start_time = millis();
                 this->current_time = 0;
                 this->pomodoro_cycle = (this->pomodoro_cycle + 1) % 2;
+                // the divinity of the sacred meow
+                meow(this->buzzerPin);
             }
             break;
         }
@@ -131,7 +136,8 @@ void Clock::cycle()
         break;
     }
 
-    tickMeow();
+    tickMeow(this->buzzerPin);
+    tickMelody(this->buzzerPin);
 }
 String Clock::formattedTime()
 {
@@ -146,58 +152,3 @@ String Clock::formattedTime()
     return String(buffer);
 }
 
-// what a cutely named function
-void Clock::meow()
-{
-    tickMeow(true);
-}
-
-void Clock::tickMeow(bool reset)
-{
-    static bool active = false;
-    static float i = 0.0;
-    static int phase = 0;
-    static unsigned long last_time = 0;
-    static int base_freq = 900;
-    static int range = 200;
-    static int step_delay = 25;
-
-    if (reset)
-    {
-        int rand_pitch = random(-40, 41);
-        int rand_range = random(-20, 21);
-        int rand_delay = random(-5, 6);
-
-        active = true;
-        i = 0.0;
-        phase = 0;
-        last_time = millis();
-        base_freq = 900 + rand_pitch;
-        range = 200 + rand_range;
-        step_delay = 25 + rand_delay < 5 ? 5 : 25 + rand_delay;
-        return;
-    }
-
-    if (!active) return;
-
-    //Me — step 0.2, 5ms per step
-    //Oww — step 0.05, longer delay to stretch the descent
-    unsigned long interval = (phase == 0) ? 5 : step_delay;
-    if (millis() - last_time < interval) return;
-    last_time = millis();
-
-    int freq = base_freq + (sin(i) * range);
-    tone(this->buzzerPin, freq);
-
-    if (phase == 0)
-    {
-        i += 0.2;
-        if (i >= PI / 2) { phase = 1; i = PI / 2; }
-    }
-    else
-    {
-        i += 0.05;
-        if (i >= PI) { noTone(this->buzzerPin); active = false; }
-    }
-    // the mathematics of the perfect meow
-}

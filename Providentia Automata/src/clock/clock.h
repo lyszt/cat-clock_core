@@ -31,8 +31,6 @@ class Clock {
         void setPomodoroDuration(int minutes);
         unsigned long getTimeElapsed();
         void cycle();
-        void meow();
-        void tickMeow(bool reset = false);
         
 };
 
