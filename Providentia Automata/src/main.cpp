@@ -4,7 +4,7 @@
 #include "clock/clock.h"
 
 LiquidCrystal_I2C lcd(0x27, 16, 2);
-Clock clock(0);
+Clock clock(0, lcd);
 // Test variables
 String test = "Hello world!";
 
@@ -60,13 +60,11 @@ void handleModeButton()
 void setup()
 {
     pinMode(modeButton, INPUT_PULLUP);
-
+    clock.lcd.init();
+    clock.lcd.noDisplay();
+    clock.lcd.noBacklight();
     clock.setPomodoroDuration(10);
-
-    lcd.init();
-    lcd.backlight();
     Serial.begin(9600);
-    lcd.clear();
 }
 
 void loop()
@@ -74,6 +72,6 @@ void loop()
     clock.cycle();
     handleModeButton();
     if (getMillis(1000) != 0) {
-        lcdPrint(lcd, clock.formattedTime());
+        lcdPrint(clock.lcd, clock.formattedTime());
     }
 }

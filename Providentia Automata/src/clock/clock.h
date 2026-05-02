@@ -13,9 +13,13 @@ class Clock {
         int mode; // 0: disabled, 1: alarm mode, 2: pomodoro mode
         int pomodoro_cycle;
         int num_modes = 3; 
+        int turned_on = false;
+        int buzzerPin = 3;
+        LiquidCrystal_I2C lcd;
 
-        Clock(int insert_mode) {
-            mode = insert_mode;
+        Clock(int insert_mode, LiquidCrystal_I2C lcd_obj)
+            : mode(insert_mode), lcd(lcd_obj)
+        {
         }
 
         void setMode(int mode);
@@ -27,7 +31,7 @@ class Clock {
         void setPomodoroDuration(int minutes);
         unsigned long getTimeElapsed();
         void cycle();
-        
+        void meow();
         
 };
 

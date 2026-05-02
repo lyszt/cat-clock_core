@@ -9,6 +9,7 @@ enum modes
     POMODORO
 };
 
+
 // Clock functions
 
 unsigned long Clock::getTimeElapsed()
@@ -37,7 +38,6 @@ unsigned long Clock::getTime()
     return this->current_time;
 }
 
-
 void Clock::setPomodoroDuration(int minutes)
 {
     this->pomodoro_duration = minutes * 60000UL;
@@ -46,18 +46,15 @@ void Clock::setPomodoroDuration(int minutes)
 void Clock::toggleMode()
 {
     this->mode = (this->mode + 1) % this->num_modes;
+    LiquidCrystal_I2C *lcd = &this->lcd;
 
     switch (this->mode)
     {
-    case DISABLED:
-        this->current_time = 0;
-        break;
-
     case CHRONOMETRE:
         this->start_time = millis();
         this->current_time = 0;
         break;
-        
+
     case POMODORO:
         this->start_time = millis();
         this->current_time = 0;
@@ -66,7 +63,28 @@ void Clock::toggleMode()
 
     default:
         this->current_time = 0;
+        if (this->turned_on == true)
+        {
+            this->turned_on = false;
+            lcd->noDisplay();
+            lcd->noBacklight();
+        }
+        break;
     }
+
+    if (!turned_on && this->mode != DISABLED)
+    {
+        LiquidCrystal_I2C *lcd = &this->lcd;
+
+        lcd->display();
+        lcd->backlight();
+        lcd->clear();
+        this->turned_on = true;
+    }
+
+    // the divinity of the sacred meow
+    meow();
+
 }
 
 void Clock::cycle()
@@ -82,12 +100,13 @@ void Clock::cycle()
 
     case POMODORO:
     {
-        this->getTimeElapsed(); 
-        
-        int minutes = (int)(this->current_time / 1000 / 60) % 60;
+        this->getTimeElapsed();
+
         if (this->pomodoro_cycle == 0)
         {
-            if (minutes >= 25)
+            if (this->current_time >= 1500000UL) // 25 * 60 * 1000 - 25 minutos,
+            // sadly I was forced to do this
+            // unreadable shit
             {
                 this->start_time = millis();
                 this->current_time = 0;
@@ -97,7 +116,7 @@ void Clock::cycle()
         }
         else if (this->pomodoro_cycle == 1)
         {
-            if (minutes >= (this->pomodoro_duration / 60000UL))
+            if (this->current_time >= this->pomodoro_duration)
             {
                 this->start_time = millis();
                 this->current_time = 0;
@@ -123,4 +142,39 @@ String Clock::formattedTime()
     sprintf(buffer, "%02d:%02d:%02d", hours, minutes, seconds);
 
     return String(buffer);
+}
+
+// what a cutely named function
+void Clock::meow()
+{
+    // Adding slight variation each call
+    int rand_pitch = random(-40, 41);
+    int rand_range = random(-20, 21);
+
+    int base_freq = 900 + rand_pitch; 
+    int range = 200 + rand_range;
+
+    //Me
+    // We use a larger step (0.2) to move through the first 90 degrees quickly
+    for (float i = 0; i < PI / 2; i += 0.2) 
+    {
+        int freq = base_freq + (sin(i) * range);
+        tone(this->buzzerPin, freq);
+        delay(5); 
+    }
+
+    // "Oww"
+    // We use a much smaller step (0.05) and a slightly longer delay
+    // to stretch the descent from the peak back to base_freq
+    for (float i = PI / 2; i < PI; i += 0.05) 
+    {
+        int freq = base_freq + (sin(i) * range);
+        tone(this->buzzerPin, freq);
+        
+        int final_delay = 25 + rand_delay;
+        delay(final_delay < 5 ? 5 : final_delay); 
+    }
+
+    noTone(this->buzzerPin);
+    // the mathematics of the perfect meow
 }
