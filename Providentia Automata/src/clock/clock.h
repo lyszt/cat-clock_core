@@ -32,6 +32,7 @@ class Clock {
         unsigned long getTimeElapsed();
         void cycle();
         void meow();
+        void tickMeow(bool reset = false);
         
 };
 

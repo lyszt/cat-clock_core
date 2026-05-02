@@ -130,6 +130,8 @@ void Clock::cycle()
     default:
         break;
     }
+
+    tickMeow();
 }
 String Clock::formattedTime()
 {
@@ -147,34 +149,55 @@ String Clock::formattedTime()
 // what a cutely named function
 void Clock::meow()
 {
-    // Adding slight variation each call
-    int rand_pitch = random(-40, 41);
-    int rand_range = random(-20, 21);
+    tickMeow(true);
+}
 
-    int base_freq = 900 + rand_pitch; 
-    int range = 200 + rand_range;
+void Clock::tickMeow(bool reset)
+{
+    static bool active = false;
+    static float i = 0.0;
+    static int phase = 0;
+    static unsigned long last_time = 0;
+    static int base_freq = 900;
+    static int range = 200;
+    static int step_delay = 25;
 
-    //Me
-    // We use a larger step (0.2) to move through the first 90 degrees quickly
-    for (float i = 0; i < PI / 2; i += 0.2) 
+    if (reset)
     {
-        int freq = base_freq + (sin(i) * range);
-        tone(this->buzzerPin, freq);
-        delay(5); 
+        int rand_pitch = random(-40, 41);
+        int rand_range = random(-20, 21);
+        int rand_delay = random(-5, 6);
+
+        active = true;
+        i = 0.0;
+        phase = 0;
+        last_time = millis();
+        base_freq = 900 + rand_pitch;
+        range = 200 + rand_range;
+        step_delay = 25 + rand_delay < 5 ? 5 : 25 + rand_delay;
+        return;
     }
 
-    // "Oww"
-    // We use a much smaller step (0.05) and a slightly longer delay
-    // to stretch the descent from the peak back to base_freq
-    for (float i = PI / 2; i < PI; i += 0.05) 
-    {
-        int freq = base_freq + (sin(i) * range);
-        tone(this->buzzerPin, freq);
-        
-        int final_delay = 25 + rand_delay;
-        delay(final_delay < 5 ? 5 : final_delay); 
-    }
+    if (!active) return;
 
-    noTone(this->buzzerPin);
+    //Me — step 0.2, 5ms per step
+    //Oww — step 0.05, longer delay to stretch the descent
+    unsigned long interval = (phase == 0) ? 5 : step_delay;
+    if (millis() - last_time < interval) return;
+    last_time = millis();
+
+    int freq = base_freq + (sin(i) * range);
+    tone(this->buzzerPin, freq);
+
+    if (phase == 0)
+    {
+        i += 0.2;
+        if (i >= PI / 2) { phase = 1; i = PI / 2; }
+    }
+    else
+    {
+        i += 0.05;
+        if (i >= PI) { noTone(this->buzzerPin); active = false; }
+    }
     // the mathematics of the perfect meow
 }
