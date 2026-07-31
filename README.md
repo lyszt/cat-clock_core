@@ -1,4 +1,4 @@
-# Providentia — Cat Pomodoro Clock
+# Cat Pomodoro Clock
 
 ## Concept
 
