@@ -2,4 +2,4 @@
 
 ## Concept
 
-A physical pomodoro timer with a cat personality. 
+A physical pomodoro timer. 
